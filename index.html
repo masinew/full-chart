@@ -12,6 +12,9 @@
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="js/chart-core.js"></script>
+
+
+        <script src="js/donut-chart.js"></script>
         <script src="js/triple-pie-chart.js"></script>
         <script type="text/javascript">
   
@@ -21,13 +24,13 @@
         google.charts.setOnLoadCallback(init);
 
         function init() {
-            handleDonutChart();
-            handleComboChart();
-            handleTriplePieChart('chart_div3');
-            handleAreaChart();
-            handleLineChart();
-            handleGaugeChart();
-            handleTableChart();
+            handleDonutChart('chart_div');
+            // handleComboChart();
+            // handleTriplePieChart('chart_div3');
+            // handleAreaChart();
+            // handleLineChart();
+            // handleGaugeChart();
+            // handleTableChart();
 
             // TEST
             // drawChart();
@@ -37,59 +40,34 @@
         }
 
         // 1
-        function handleDonutChart() {
-            // TODO: Link tooptip to its slice
-            var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-            getData(function(result) {
-                var data = new google.visualization.DataTable();
-                data.addColumn('string', 'name');
-                data.addColumn('number', 'count');
-                data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
-                var data = setupData(data, result);
-                var colors = getDefaultColor(3);
-                var options = {
-                    title :'Overview Report',
-                    titleTextStyle: {
-                        color: '#7bb8ed', 
-                        fontSize: 25
-                    },
-                    height: 400,
-                    width: '100%',
-                    colors: colors,
-                    pieHole: 0.4,
-                    tooltip:{
-                        isHtml: true,
-                        trigger: 'selection'
-                    },
-                    legend: 'none'
-                };
-                setAlwayVisibleTooptip(chart, data);
-                function placeMarker(dataTable) {
-                    var cli = this.getChartLayoutInterface();
-                    var chartArea = cli.getChartAreaBoundingBox();
-                    var parent = document.getElementById('chart_div').parentElement;
-                    var newElem = document.createElement('div');
-                    parent.appendChild(newElem);
-                    newElem.style = 'position: absolute';
-                    var asd = cli.getBoundingBox('slice#1');
-                    var qwe = document.getElementById('tooltip_2').getBoundingClientRect();
-                    newElem.style.top = qwe.x + qwe.height + 'px';
-                    newElem.style.left = qwe.y + 15 + (qwe.width/2) + 'px';
-                    console.log(asd);
-                    console.log(qwe);
-                    newElem.innerHTML = `
-                        <svg height="210" width="500">
-                            <line x1="100" y1="100" x2="200" y2="100" style="stroke:rgb(255,0,0);stroke-width:2" />
-                        </svg>
-                    `;
-                }
+        
 
-                google.visualization.events.addListener(chart, 'ready',
-                    placeMarker.bind(chart, data)
-                );
-                worker(chart, data, options);
-            });
-        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // 2
         function handleComboChart() {

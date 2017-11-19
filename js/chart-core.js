@@ -76,20 +76,20 @@ function getDefaultOptions() {
     };
 }
 
-function setupData(data, result) {
-    // var data = new google.visualization.DataTable();
-    // data.addColumn('string', 'Topping');
-    // data.addColumn('number', 'Slices');
-    // data.addColumn('number', 'Cost');
-    var colors = getDefaultColor(result.length);
-    for (var index in result) {
-        var row = result[index];
-        // data.addRow([row.colName, row.slices, row.cost]);
-        data.addRow([row.name, row.count, createCustomTooltip(row.desc, colors[index], index)]);
-    }
+// function setupData(data, result) {
+//     // var data = new google.visualization.DataTable();
+//     // data.addColumn('string', 'Topping');
+//     // data.addColumn('number', 'Slices');
+//     // data.addColumn('number', 'Cost');
+//     var colors = getDefaultColor(result.length);
+//     for (var index in result) {
+//         var row = result[index];
+//         // data.addRow([row.colName, row.slices, row.cost]);
+//         data.addRow([row.name, row.count, createCustomTooltip(row.desc, colors[index], index)]);
+//     }
     
-    return data;
-}
+//     return data;
+// }
 
 function getDefaultColor(range) {
     var colors = [
@@ -103,17 +103,17 @@ function getDefaultColor(range) {
     });
 }
 
-function createCustomTooltip(des, color, index) {
-    return `
-        <div id="tooltip_${index}" style="padding: 8px 8px 8px 8px; width: 110px; border-style: solid; border-color: ${color};">
-            <svg height="1em" width="1em">
-                <circle cx="5" cy="7" r="5"  fill="${color}" />
-                Sorry, your browser does not support inline SVG.  
-            </svg> 
-            <font size="2em">${des}</font>
-        </div>
-    `;
-}
+// function createCustomTooltip(des, color, index) {
+//     return `
+//         <div id="tooltip_${index}" style="padding: 8px 8px 8px 8px; width: 110px; border-style: solid; border-color: ${color}; left: 10px !important;">
+//             <svg height="1em" width="1em">
+//                 <circle cx="5" cy="7" r="5"  fill="${color}" />
+//                 Sorry, your browser does not support inline SVG.  
+//             </svg> 
+//             <font size="2em">${des}</font>
+//         </div>
+//     `;
+// }
 
 
 // Prepare to handle all charts
