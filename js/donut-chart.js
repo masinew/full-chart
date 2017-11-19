@@ -26,71 +26,130 @@ function handleDonutChart(elemId) {
         };
         setAlwayVisibleTooptip(chart, data);
         
-
+        var statusMouseIn = 0;
         google.visualization.events.addListener(chart, 'ready',
             TooltipLineLinkedToItsSlice.bind(chart, data, elemId)
         );
-
         google.visualization.events.addListener(chart, 'onmouseover',
-            setTooptipLocation
+            TooltipLineLinkedToItsSlice.bind(chart, data, elemId, statusMouseIn)
         );
-
         google.visualization.events.addListener(chart, 'onmouseout',
-        setTooptipLocation
-    );
+            TooltipLineLinkedToItsSlice.bind(chart, data, elemId, statusMouseIn)
+        );
         worker(chart, data, options);
     });
 
-    function setTooptipLocation() {
-        var container  = document.querySelector('#chart_div');
-        var tooltip = container.querySelector('#tooltip_pie_chart_2');
-        var pTooltip = tooltip.parentElement;
-        pTooltip.style.top = 0;
-        pTooltip.style.left = 0;
-    }
+    
 
-    function TooltipLineLinkedToItsSlice(dataTable, elemId) {
+    function TooltipLineLinkedToItsSlice(dataTable, elemId, statusMouseIn) {
+        var chartElem = document.getElementById(elemId);
         var cli = this.getChartLayoutInterface();
         var chartArea = cli.getChartAreaBoundingBox();
-        var parent = document.getElementById(elemId).parentElement;
+        // var parent = document.getElementById(elemId).parentElement;
         var newElem = document.createElement('div');
         var slice1 = cli.getBoundingBox('slice#2');
         var tooltip1 = document.getElementById('tooltip_pie_chart_2').getBoundingClientRect();
         for (var i=0; i<dataTable.getNumberOfRows(); i++) {
-            var tooltip = document.getElementById('tooltip_pie_chart_' + i).getBoundingClientRect();
+            var tooltipId = 'tooltip_pie_chart_' + i;
+            var tooltip = document.getElementById(tooltipId).getBoundingClientRect();
             var slice = cli.getBoundingBox('slice#' + i);
-            calculatePointLinked(tooltip, slice);
+            toLinkedSliceAndTooltip(chartElem, tooltipId, tooltip, slice);
+            
         }
+
+        // function addLineLinked(tooltipId, tooltipSide, slice) {
+        //     var tooltip = document.getElementById(tooltipId).getBoundingClientRect();
+        //     var newElem = document.createElement('div');
+        //     var tooltipPointX = (tooltip.left + tooltip.width);
+        //     var tooltipPointY = (tooltip.top + (tooltip.height / 2));
+        //     if (tooltipSide == 'right') {
+        //         tooltipPointX = tooltip.left;
+        //         tooltipPointY = (tooltip.top + (tooltip.height / 2));
+        //     }
+        //     newElem.style = 'position: absolute';
+        //     newElem.style.top = tooltipPointY + 'px';
+        //     newElem.style.left = tooltipPointX + 'px';
+        //     newElem.innerHTML = `
+        //         <svg height="120" width="120">
+        //             <line x1="0" y1="0" x2="100" y2="100" style="stroke:rgb(255,0,0);stroke-width:2" />
+        //         </svg>
+        //     `;
+            
+        //     parent.appendChild(newElem);
+        // }
 
         // var container = document.querySelector('#' + elemId + '  > div:last-child');
         // var tooltip = container.querySelector('div.google-visualization-tooltip');
         // setTooptipLocation();
 
-        parent.appendChild(newElem);
-        newElem.style = 'position: absolute';
+        // parent.appendChild(newElem);
+        // newElem.style = 'position: absolute';
 
-        var tooltipPointX = (tooltip1.left + tooltip1.width);
-        var tooltipPointY = (tooltip1.top + (tooltip1.height / 2));
+        // var tooltipPointX = (tooltip1.left + tooltip1.width);
+        // var tooltipPointY = (tooltip1.top + (tooltip1.height / 2));
         
-        newElem.style.top = tooltipPointY + 'px';
-        newElem.style.left = tooltipPointX + 'px';
-        newElem.id = 'champ';
-        console.log('slice1');        
-        console.log(slice1);
-        console.log('tooltip1');
-        console.log(tooltip1);
-        newElem.innerHTML = `
-            <svg height="120" width="120">
-                <line x1="0" y1="0" x2="100" y2="100" style="stroke:rgb(255,0,0);stroke-width:2" />
-            </svg>
-        `;
+        // newElem.style.top = tooltipPointY + 'px';
+        // newElem.style.left = tooltipPointX + 'px';
+        // newElem.id = 'champ';
+        // newElem.innerHTML = `
+        //     <svg height="120" width="120">
+        //         <line x1="0" y1="0" x2="100" y2="100" style="stroke:rgb(255,0,0);stroke-width:2" />
+        //     </svg>
+        // `;
     }
 
-    function calculatePointLinked(tooltip, slice) {
-        // var tooltipX = (tooltip.left + tooltip.width);
-        // var tooltipY = (tooltip.top + (tooltip.height / 2));
-        var str = calculateTooltipSide(tooltip.left, tooltip.top, slice.left, slice.top);
-        console.log(str);
+    function toLinkedSliceAndTooltip(chartContainer, tooltipId, tooltip, slice) {
+        var tooltipX = (tooltip.left + tooltip.width);
+        var tooltipY = (tooltip.top + (tooltip.height / 2));
+        var chartWidth = chartContainer.getBoundingClientRect().width;
+        var tooltipSide = calculateTooltipSide(tooltip.left, tooltip.top, slice.left, slice.top);        
+        var moveToX = getTooltipX(chartWidth, tooltip.left, tooltipSide);
+        setTooptipLocation(chartContainer, tooltipId, moveToX);
+        addLineLinked(chartContainer, moveToX, tooltip, slice, tooltipSide);
+
+        function addLineLinked(chartContainer, currentTooltipX, tooltip, slice, tooltipSide) {
+            var parent = chartContainer.parentElement;
+            var newElem = document.createElement('div');
+            var tooltipPointX = currentTooltipX + tooltip.width;
+            var tooltipPointY = tooltip.top + (tooltip.height / 2);
+            var slicePointX = 130;slice.left;
+            var slicePointY = 60;slice.top + (slice.top / 2);
+            if (tooltipSide == 'right') {
+                tooltipPointX = currentTooltipX;
+                tooltipPointY = tooltip.top + (tooltip.height / 2);
+            }
+
+            console.log(tooltipPointX + ', ' + tooltipPointY);
+            console.log(slice);
+            console.log(slicePointX + ', ' + slicePointY);
+            newElem.style = 'position: absolute';
+            newElem.style.top = tooltipPointY + 'px';
+            newElem.style.left = tooltipPointX + 'px';
+            newElem.innerHTML = `
+                <svg height="200" width="220">
+                    <line x1="0" y1="0" x2="${slicePointX}" y2="${slicePointY}" style="stroke:rgb(255,0,0);stroke-width:2" />
+                </svg>
+            `;
+
+            parent.appendChild(newElem);
+        }
+
+
+        function setTooptipLocation(chartContainer, tooltipId, x) {
+            var tooltip = chartContainer.querySelector('#' + tooltipId);
+            var pTooltip = tooltip.parentElement;
+            pTooltip.style.left = x + 'px';
+        }
+        
+        function getTooltipX(chartWidth, tooltipX, tooltipSide) {
+            if (tooltipSide == 'left') {
+                var moveToX = tooltipX / 2;
+            } else if (tooltipSide == 'right') {
+                var moveToX = ((chartWidth - tooltipX) / 4) + tooltipX;
+            }
+
+            return moveToX;
+        }
 
         function calculateTooltipSide(tooltipX, tooltipY, sliceX, sliceY) {
             var resultX = tooltipX - sliceX;
