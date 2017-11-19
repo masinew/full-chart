@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chart</title>
+        <!--Load the AJAX API-->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="js/chart-core.js"></script>
+        <script src="js/triple-pie-chart.js"></script>
+        <script type="text/javascript">
+  
+        
+  
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(init);
+
+        function init() {
+            handleDonutChart();
+            handleComboChart();
+            handleTriplePieChart('chart_div3');
+            handleAreaChart();
+            handleLineChart();
+            handleGaugeChart();
+            handleTableChart();
+
+            // TEST
+            // drawChart();
+            // handlePieChart();
+            // handleLineChart_OLD();
+            // handleColumnChart();
+        }
+
+        // 1
+        function handleDonutChart() {
+            // TODO: Link tooptip to its slice
+            var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+            getData(function(result) {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'name');
+                data.addColumn('number', 'count');
+                data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
+                var data = setupData(data, result);
+                var colors = getDefaultColor(3);
+                var options = {
+                    title :'Overview Report',
+                    titleTextStyle: {
+                        color: '#7bb8ed', 
+                        fontSize: 25
+                    },
+                    height: 400,
+                    width: '100%',
+                    colors: colors,
+                    pieHole: 0.4,
+                    tooltip:{
+                        isHtml: true,
+                        trigger: 'selection'
+                    },
+                    legend: 'none'
+                };
+                setAlwayVisibleTooptip(chart, data);
+                function placeMarker(dataTable) {
+                    var cli = this.getChartLayoutInterface();
+                    var chartArea = cli.getChartAreaBoundingBox();
+                    var parent = document.getElementById('chart_div').parentElement;
+                    var newElem = document.createElement('div');
+                    parent.appendChild(newElem);
+                    newElem.style = 'position: absolute';
+                    var asd = cli.getBoundingBox('slice#1');
+                    var qwe = document.getElementById('tooltip_2').getBoundingClientRect();
+                    newElem.style.top = qwe.x + qwe.height + 'px';
+                    newElem.style.left = qwe.y + 15 + (qwe.width/2) + 'px';
+                    console.log(asd);
+                    console.log(qwe);
+                    newElem.innerHTML = `
+                        <svg height="210" width="500">
+                            <line x1="100" y1="100" x2="200" y2="100" style="stroke:rgb(255,0,0);stroke-width:2" />
+                        </svg>
+                    `;
+                }
+
+                google.visualization.events.addListener(chart, 'ready',
+                    placeMarker.bind(chart, data)
+                );
+                worker(chart, data, options);
+            });
+        }
+
+        // 2
+        function handleComboChart() {
+            var chart = new google.visualization.ComboChart(document.getElementById('chart_div2'));
+            var colors = getDefaultColor(2);
+            var data = google.visualization.arrayToDataTable([
+                ['Month', 'Visitor', 'Recieve'],
+                ['01 Nov 2017',  523,      523],
+                ['02 Nov 2017',  677,      677],
+                ['03 Nov 2017',  365,      365],
+                ['04 Nov 2017',  766,      766],
+                ['01 Nov 2017',  523,      523],
+                ['02 Nov 2017',  677,      677],
+                ['03 Nov 2017',  365,      365],
+                ['04 Nov 2017',  766,      766],
+                ['01 Nov 2017',  523,      523],
+                ['02 Nov 2017',  677,      677],
+                ['03 Nov 2017',  365,      365],
+                ['04 Nov 2017',  766,      766],
+                ['01 Nov 2017',  523,      523],
+                ['02 Nov 2017',  677,      677],
+                ['03 Nov 2017',  365,      365],
+                ['04 Nov 2017',  766,      766],
+                ['05 Nov 2017',  546,      546]
+            ]);
+            var options = {
+                title : 'Monthly Cost',
+                colors: colors,
+                width: '100%',
+                height: 400,
+                titleTextStyle: {
+                    color: '#7bb8ed', fontSize: 25
+                },
+                legend: {
+                    position: 'none'
+                },
+                // vAxis: {title: 'Cups'},
+                hAxis: {title: 'Date'},
+                seriesType: 'bars',
+                series: {
+                    1: {
+                        type: 'line',
+                        targetAxisIndex: 1
+                    }
+                },
+                vAxes: [
+                    {
+                        title: 'Number Of Visitor'
+                    },
+                    {
+                        title:'Recieve'
+                    }
+                ],
+                candlestick: {
+                    hollowIsRising: true
+                }
+            };
+            worker(chart, data, options);
+        }
+
+        // 3
+        
+
+        // 4
+        function handleAreaChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Year', 'Sales', 'Expenses'],
+                ['1',  1000,      400],
+                ['2',  1170,      460],
+                ['3',  660,       1120],
+                ['4',  1030,      540]
+            ]);
+            var options = Object.assign({
+                title: 'Company Performance',
+                hAxis: {title: 'Date',  titleTextStyle: {color: '#333'}},
+                vAxis: {minValue: 0},
+                legend: {
+                    position: 'bottom'
+                }
+            }, getDefaultOptions());
+
+            var chart = new google.visualization.AreaChart(document.getElementById('chart_div6'));
+            chart.draw(data, options);
+        }
+
+        // 5
+        function handleLineChart() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'X');
+            data.addColumn('number', 'In');
+            data.addColumn('number', 'Out');
+            data.addRows([
+                ['12 Nov 2017', 0, 0],    ['13 Nov 2017', 10, 5],   ['14 Nov 2017', 23, 15],
+                ['15 Nov 2017', 0, 0],    ['16 Nov 2017', 10, 5],   ['17 Nov 2017', 23, 15],
+                // ['18 Nov 2017', 0, 0],    ['19 Nov 2017', 10, 5],   ['20 Nov 2017', 23, 15],
+                // ['21 Nov 2017', 0, 0],    ['22 Nov 2017', 10, 5],   ['23 Nov 2017', 23, 15],
+                // ['24 Nov 2017', 0, 0],    ['25 Nov 2017', 10, 5],   ['26 Nov 2017', 23, 15],
+                ['27 Nov 2017', 0, 0],    ['28 Nov 2017', 10, 5],   ['29 Nov 2017', 23, 15]
+            ]);
+
+            var options = Object.assign({}, getDefaultOptions(), {
+                hAxis: {
+                    title: 'Date'
+                },
+                vAxis: {
+                    title: 'Popularity'
+                },
+                series: {
+                    0: {curveType: 'function'},
+                    1: {curveType: 'function'}
+                },
+                legend: {
+                    position: 'bottom'
+                },
+                chartArea: {
+                    height: '50%'
+                }
+            });
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div7'));
+            chart.draw(data, options);
+        }
+
+        // 6
+        function handleGaugeChart() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'X');
+            data.addColumn('number', 'In');
+            data.addRows([
+                ['12 Nov 2017', 0]
+            ]);
+
+            var options = Object.assign({}, getDefaultOptions(), {
+                redFrom: 90, redTo: 100,
+                yellowFrom:75, yellowTo: 90,
+                majorTicks: ['20%', '40%', '60%', '80%', '100%'],
+                minorTicks: 0
+            });
+
+            var chart = new google.visualization.Gauge(document.getElementById('chart_div8'));
+            chart.draw(data, options);
+        }
+
+        // 7
+        function handleTableChart() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'X');
+            data.addColumn('number', 'In');
+            data.addColumn('number', 'Out');
+            data.addRows([
+                ['12 Nov 2017', 0, 0],    ['13 Nov 2017', 10, 5],   ['14 Nov 2017', 23, 15],
+                ['15 Nov 2017', 0, 0],    ['16 Nov 2017', 10, 5],   ['17 Nov 2017', 23, 15],
+                ['18 Nov 2017', 0, 0],    ['19 Nov 2017', 10, 5],   ['20 Nov 2017', 23, 15]
+            ]);
+
+            var options = Object.assign({}, getDefaultOptions(), {
+                width: '100%', height: '100%'
+            });
+
+            var chart = new google.visualization.Table(document.getElementById('chart_div9'));
+            chart.draw(data, options);
+        }
+
+        
+
+
+        // TEST
+
+        // function handleColumnChart() {
+        //     var chart = new google.visualization.ColumnChart(document.getElementById('chart_div8'));
+        //     getData(function(result) {
+        //         var data = new google.visualization.DataTable();
+        //         data.addColumn('string', 'name');
+        //         data.addColumn('number', 'count');
+        //         data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
+        //         var data = setupData(data, result);
+        //         var colors = getDefaultColor(3);
+        //         var options = Object.assign({}, getDefaultOptions(), {
+        //             title :'Overview Report',
+        //             titleTextStyle: {
+        //                 color: '#7bb8ed', 
+        //                 fontSize: 25
+        //             },
+        //             colors: colors,
+        //             pieHole: 0.4,
+        //             tooltip:{
+        //                 isHtml: true,
+        //                 trigger: 'selection'
+        //             },
+        //             legend: {
+        //                 position: 'bottom'
+        //             }
+        //         });
+        //         setAlwayVisibleTooptip(chart, data);
+        //         worker(chart, data, options);
+        //     });
+        // }
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        // function handlePieChart() {
+        //     var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+        //     getData(function(result) {
+        //         var data = setupData(result);
+        //         var options = getDefaultOptions();
+        //         setAlwayVisibleTooptip(chart, data);
+        //         worker(chart, data, options);
+        //     });
+        // }
+
+        // function handleLineChart_old() {
+        //     var chart = new google.visualization.LineChart(document.getElementById('chart_div2'));
+        //     getData(function(result) {
+        //         var data = setupData(result);
+        //         var options = getDefaultOptions();
+        //         worker(chart, data, options);
+        //     });
+        // }
+
+        
+
+        // // TEST
+        // function drawChart() {
+
+        //     var data = new google.visualization.DataTable();
+        //     data.addColumn('number', 'Day');
+        //     data.addColumn('number', 'Guardians of the Galaxy');
+        //     data.addColumn('number', 'The Avengers');
+        //     data.addColumn('number', 'Transformers: Age of Extinction');
+
+        //     data.addRows([
+        //         [1,  37.8, 80.8, 41.8],
+        //         [2,  30.9, 69.5, 32.4],
+        //         [3,  25.4,   57, 25.7],
+        //         [4,  11.7, 18.8, 10.5],
+        //         [5,  11.9, 17.6, 10.4],
+        //         [6,   8.8, 13.6,  7.7],
+        //         [7,   7.6, 12.3,  9.6],
+        //         [8,  12.3, 29.2, 10.6],
+        //         [9,  16.9, 42.9, 14.8],
+        //         [10, 12.8, 30.9, 11.6],
+        //         [11,  5.3,  7.9,  4.7],
+        //         [12,  6.6,  8.4,  5.2],
+        //         [13,  4.8,  6.3,  3.6],
+        //         [14,  4.2,  6.2,  3.4]
+        //     ]);
+
+        //     var options = Object.assign({}, getDefaultOptions(), {
+        //         chart: {
+        //         title: 'Box Office Earnings in First Two Weeks of Opening',
+        //         subtitle: 'in millions of dollars (USD)'
+        //         },
+        //         axes: {
+        //             x: {
+        //                 0: {side: 'bottom'}
+        //             }
+        //         },
+        //         legend: { position: 'bottom' }
+                
+        //     });
+
+        //     var chart = new google.charts.Line(document.getElementById('chart_div8'));
+
+        //     chart.draw(data,options);
+        // }
+
+        
+      </script>
+    </head>
+  
+    <body>
+      <!--Div that will hold the pie chart-->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <div id="chart_div" style="position: relative"></div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <div id="chart_div2"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="chart_div3"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm">
+                    <div id="chart_div6"></div>
+                </div>
+                <div class="col-sm">
+                    <div id="chart_div7"></div>
+                </div>
+                <div class="col-sm">
+                    <div id="chart_div8"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm">
+                        <div id="chart_div9"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+  </html>
